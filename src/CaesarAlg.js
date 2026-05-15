@@ -14,7 +14,6 @@ function runAlgorithm(mode, text, shift = 0) {
         : 'unknown'
 
   if (keyboardLayout == 'mixed' || keyboardLayout == 'unknown') alert('Неизвестный или смешанный алфавит!')
-  if (hasNumbers(text)) alert('Цифры недопустимы!')
 
   const normalShift = keyboardLayout == 'cyrillic' ? Math.abs(shift) % 32 : Math.abs(shift) % 26
   const alphabetFreqs = alphabetsFrequencies[keyboardLayout]
@@ -29,7 +28,7 @@ function runAlgorithm(mode, text, shift = 0) {
 
 
 function encryptText(text, shift, alphabet) {
-  const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n]/g, match => replacements[match])
+  const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n0123456789]/g, match => replacements[match])
   let encryptedText = ''
 
   for (let index = 0; index < filteredText.length; index++) {
@@ -82,8 +81,8 @@ function shiftText(text, shift, alphabet) {
   return shiftedArr.join('')
 }
 
-function createFreqDict(text, alphabet) {
 
+function createFreqDict(text, alphabet) {
   const currentFreqs = Object.fromEntries([...alphabet].map(char => [char, 0]));
   let total = 0;
 
@@ -103,8 +102,8 @@ function createFreqDict(text, alphabet) {
   return frequencies;
 }
 
-function MLS(freqs, alphabet, expectedFreqs) {
 
+function MLS(freqs, alphabet, expectedFreqs) {
   let sum = 0;
   for (const char of alphabet) {
     const diff = freqs[char] - (expectedFreqs[char] || 0);
