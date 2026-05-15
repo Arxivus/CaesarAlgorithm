@@ -8,7 +8,13 @@ const alphabetsInString = {
 
 function runAlgorithm(mode, text, shift = 0) {
   let resultText = ''
-  const keyboardLayout = isCyrillic(text) ? 'cyrillic' : isLatin(text) ? 'latin' : 'unknown'
+  const keyboardLayout = isCyrillic(text) && isLatin(text) ? 'mixed'
+    : isCyrillic(text) ? 'cyrillic'
+      : isLatin(text) ? 'latin'
+        : 'unknown'
+
+  if (keyboardLayout == 'mixed' || keyboardLayout == 'unknown') alert('Неизвестный или смешанный алфавит!')
+  if (hasNumbers(text)) alert('Цифры недопустимы!')
 
   const normalShift = keyboardLayout == 'cyrillic' ? Math.abs(shift) % 32 : Math.abs(shift) % 26
   const alphabetFreqs = alphabetsFrequencies[keyboardLayout]
@@ -29,7 +35,7 @@ function encryptText(text, shift, alphabet) {
   for (let index = 0; index < filteredText.length; index++) {
     const char = filteredText[index]
     const charIndex = alphabet.indexOf(char)
-  
+
     encryptedText += (alphabet.at((charIndex + shift) % alphabet.length))
 
     if ((index + 1) != 0 && (index + 1) % 5 == 0) {
@@ -114,6 +120,10 @@ const isCyrillic = (text) => {
 
 const isLatin = (text) => {
   return /[a-z]/i.test(text);
+};
+
+const hasNumbers = (text) => {
+  return /[0-9]/i.test(text);
 };
 
 

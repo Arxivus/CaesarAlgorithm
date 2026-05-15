@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import styles from './App.module.css'
-import img from './assets/caesar.jpg'
 import laurel from './assets/laurel.png'
 import Select from 'react-select'
 import { customStyles } from './selectStyles'
@@ -15,7 +14,7 @@ function App() {
 
   const [selectedMode, setSelectedMode] = useState('');
   const [text, setText] = useState('');
-  const [shift, setShift] = useState(null);
+  const [shift, setShift] = useState(0);
   const [changedText, setChangedText] = useState('')
 
   const textRef = useRef(null)
@@ -30,17 +29,19 @@ function App() {
   }
 
   const handleRunClick = () => {
-    if (shift && selectedMode == 'encrypt' || selectedMode == 'decrypt') {
+    if (text == '') {
+      alert('Нет текста!')
+      return
+    }
+
+    if (selectedMode == 'encrypt' || selectedMode == 'decrypt') {
       const result = runAlgorithm(selectedMode, text, shift)
       setChangedText(result)
-      console.log(result)
-
-    } else alert('Введите значение сдвига!')
+    } 
   }
 
   return (
     <div className={styles.wrapper}>
-      <img className={styles.mainImg} src={`${img}`} />
       <div className={styles.cipherBlock}>
         <div className={styles.title}>
           <img src={`${laurel}`} />
@@ -63,6 +64,7 @@ function App() {
               <p>Укажите сдвиг (в количестве символов):</p>
               <input
                 type="number"
+                placeholder='0'
                 onChange={(e) => setShift(Number(e.target.value))}
               />
             </div>
@@ -78,7 +80,7 @@ function App() {
                 className={styles.textInput}
                 type="text"
                 placeholder='Введите сюда текст...'
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => setText(e.target.value.trim())}
               />
             </div>)
             :
@@ -100,6 +102,7 @@ function App() {
         {
           changedText != '' ?
             (<div>
+              <p>Результат:</p>
               <textarea
                 className={styles.textInput}
                 type="text"
