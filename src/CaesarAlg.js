@@ -8,34 +8,45 @@ const alphabetsInString = {
 
 function runAlgorithm(mode, text, shift = 0) {
   let resultText = ''
-  const keyboardLayout = isCyrillic(text) && isLatin(text) ? 'mixed'
-    : isCyrillic(text) ? 'cyrillic'
-      : isLatin(text) ? 'latin'
-        : 'unknown'
-
-  if (keyboardLayout == 'mixed' || keyboardLayout == 'unknown') alert('Неизвестный или смешанный алфавит!')
-
-  const normalShift = keyboardLayout == 'cyrillic' ? Math.abs(shift) % 32 : Math.abs(shift) % 26
-  const alphabetFreqs = alphabetsFrequencies[keyboardLayout]
+  if (text.length < 100) {
+      alert('Размер сообщения мал, могут быть неточности!')
+    }
 
   if (mode == 'encrypt') {
-    resultText = encryptText(text.toLowerCase(), shift, alphabetsInString[keyboardLayout])
+    resultText = encryptText(text.toLowerCase(), shift)
 
-  } else resultText = decryptText(text.toLowerCase(), alphabetFreqs, alphabetsInString[keyboardLayout])
+  } else resultText = decryptText(text.toLowerCase()) /*.replaceAll(' ', '')*/
 
   return resultText
 }
 
 
-function encryptText(text, shift, alphabet) {
+function encryptText(text, shift) {
   const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n0123456789]/g, match => replacements[match])
   let encryptedText = ''
 
   for (let index = 0; index < filteredText.length; index++) {
-    const char = filteredText[index]
-    const charIndex = alphabet.indexOf(char)
+    let alphabet = ''
+    let normalShift = shift
+    let charIndex = 0
 
-    encryptedText += (alphabet.at((charIndex + shift) % alphabet.length))
+    const char = filteredText[index]
+
+    if (isCyrillic(char)) {
+      normalShift = shift % 32
+      alphabet = alphabetsInString['cyrillic']
+      charIndex = alphabet.indexOf(char)
+
+    } else if (isLatin(char)) {
+      normalShift = shift % 26
+      alphabet = alphabetsInString['latin']
+      charIndex = alphabet.indexOf(char)
+
+    } else {
+      break
+    }
+
+    encryptedText += (alphabet.at((charIndex + normalShift) % alphabet.length))
 
     if ((index + 1) != 0 && (index + 1) % 5 == 0) {
       encryptedText += ' '
@@ -45,17 +56,16 @@ function encryptText(text, shift, alphabet) {
   return encryptedText
 }
 
-function decryptText(text, alphabetFreqs, alphabet) {
+function decryptText(text) {
   let bestShift = 0;
   let bestScore = Infinity;
   let bestText = '';
 
-  for (let shift = 0; shift < alphabet.length; shift++) {
+  for (let shift = 0; shift < 33; shift++) { 
 
-    const shiftedText = shiftText(text, shift, alphabet);
-    const frequencies = createFreqDict(shiftedText, alphabet)
-    console.log(frequencies);
-    const score = MLS(frequencies, alphabet, alphabetFreqs)
+    const shiftedText = shiftText(text, shift);
+    const frequencies = createFreqDict(shiftedText)
+    const score = MLS(frequencies)
 
     if (score < bestScore) {
       bestScore = score;
@@ -70,8 +80,9 @@ function decryptText(text, alphabetFreqs, alphabet) {
 
 
 
-function shiftText(text, shift, alphabet) {
+function shiftText(text, shift) {
   const shiftedArr = text.split('').map(char => {
+    const alphabet = isLatin(char) ? alphabetsInString['latin'] : alphabetsInString['cyrillic']
     const charIndex = alphabet.indexOf(char);
 
     if (charIndex === -1) return char;
@@ -82,7 +93,8 @@ function shiftText(text, shift, alphabet) {
 }
 
 
-function createFreqDict(text, alphabet) {
+function createFreqDict(text) {
+  const alphabet = alphabetsInString['latin'] + alphabetsInString['cyrillic']
   const currentFreqs = Object.fromEntries([...alphabet].map(char => [char, 0]));
   let total = 0;
 
@@ -103,12 +115,17 @@ function createFreqDict(text, alphabet) {
 }
 
 
-function MLS(freqs, alphabet, expectedFreqs) {
+function MLS(freqs) {
+
   let sum = 0;
-  for (const char of alphabet) {
+  const expectedFreqs = alphabetsFrequencies
+
+  for (const char in freqs) {
+
     const diff = freqs[char] - (expectedFreqs[char] || 0);
     sum += diff * diff;
   }
+  
   return sum;
 }
 

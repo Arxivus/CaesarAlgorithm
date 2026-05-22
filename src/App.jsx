@@ -7,7 +7,7 @@ import runAlgorithm from './CaesarAlg'
 
 const modeOptions = [
   { value: 'encrypt', label: 'Зашифровать текст' },
-  { value: 'decrypt', label: 'Расшифровать текст' },
+  { value: 'decrypt', label: 'Взломать зашифрованный текст' },
 ]
 
 function App() {
@@ -48,7 +48,7 @@ function App() {
           <h1>Шифр Цезаря</h1>
           <img src={`${laurel}`} />
         </div>
-        <p className={styles.description}>Здесь вы можете зашифровать и расшифровать текст по алгоритму шифра Цезаря на кирилице или латинице </p>
+        <p className={styles.description}>Здесь вы можете зашифровать и взомать текст по алгоритму шифра Цезаря на кирилице или латинице </p>
         <div className={styles.setup}>
           <p>Выберите, что вы хотите сделать:</p>
           <Select
