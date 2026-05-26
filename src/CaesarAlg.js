@@ -8,62 +8,35 @@ const alphabetsInString = {
 
 function runAlgorithm(mode, text, shift = 0) {
   let resultText = ''
+  const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n0123456789]/g, match => replacements[match]).trim()
+
   if (text.length < 100) {
       alert('Размер сообщения мал, могут быть неточности!')
     }
 
   if (mode == 'encrypt') {
-    resultText = encryptText(text.toLowerCase(), shift)
+    resultText = leftShiftText(filteredText.toLowerCase(), -shift)
 
-  } else resultText = decryptText(text.toLowerCase()) /*.replaceAll(' ', '')*/
+  } else if (mode == 'hack') {
+    resultText = hackText(filteredText.toLowerCase()) 
+
+  } else {
+    resultText = leftShiftText(filteredText.toLowerCase(), shift)
+  }
 
   return resultText
 }
 
 
-function encryptText(text, shift) {
-  const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n0123456789]/g, match => replacements[match])
-  let encryptedText = ''
 
-  for (let index = 0; index < filteredText.length; index++) {
-    let alphabet = ''
-    let normalShift = shift
-    let charIndex = 0
-
-    const char = filteredText[index]
-
-    if (isCyrillic(char)) {
-      normalShift = shift % 32
-      alphabet = alphabetsInString['cyrillic']
-      charIndex = alphabet.indexOf(char)
-
-    } else if (isLatin(char)) {
-      normalShift = shift % 26
-      alphabet = alphabetsInString['latin']
-      charIndex = alphabet.indexOf(char)
-
-    } else {
-      break
-    }
-
-    encryptedText += (alphabet.at((charIndex + normalShift) % alphabet.length))
-
-    if ((index + 1) != 0 && (index + 1) % 5 == 0) {
-      encryptedText += ' '
-    }
-  }
-
-  return encryptedText
-}
-
-function decryptText(text) {
+function hackText(text) {
   let bestShift = 0;
   let bestScore = Infinity;
   let bestText = '';
 
   for (let shift = 0; shift < 33; shift++) { 
 
-    const shiftedText = shiftText(text, shift);
+    const shiftedText = leftShiftText(text, shift);
     const frequencies = createFreqDict(shiftedText)
     const score = MLS(frequencies)
 
@@ -78,18 +51,15 @@ function decryptText(text) {
 }
 
 
-
-
-function shiftText(text, shift) {
+function leftShiftText(text, shift) {
   const shiftedArr = text.split('').map(char => {
     const alphabet = isLatin(char) ? alphabetsInString['latin'] : alphabetsInString['cyrillic']
     const charIndex = alphabet.indexOf(char);
 
-    if (charIndex === -1) return char;
     return alphabet[(charIndex - shift + alphabet.length) % alphabet.length];
   });
 
-  return shiftedArr.join('')
+  return shiftedArr.join('').replace(/.{5}/g, '$& ')
 }
 
 

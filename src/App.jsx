@@ -7,7 +7,8 @@ import runAlgorithm from './CaesarAlg'
 
 const modeOptions = [
   { value: 'encrypt', label: 'Зашифровать текст' },
-  { value: 'decrypt', label: 'Взломать зашифрованный текст' },
+  { value: 'decrypt', label: 'Расшифровать текст' },
+  { value: 'hack', label: 'Взломать зашифрованный текст' },
 ]
 
 function App() {
@@ -34,7 +35,7 @@ function App() {
       return
     }
 
-    if (selectedMode == 'encrypt' || selectedMode == 'decrypt') {
+    if (selectedMode != '') {
       const result = runAlgorithm(selectedMode, text, shift)
       setChangedText(result)
     } 
@@ -48,7 +49,7 @@ function App() {
           <h1>Шифр Цезаря</h1>
           <img src={`${laurel}`} />
         </div>
-        <p className={styles.description}>Здесь вы можете зашифровать и взомать текст по алгоритму шифра Цезаря на кирилице или латинице </p>
+        <p className={styles.description}>Здесь вы можете зашифровать расшифровать и взомать текст по алгоритму шифра Цезаря на кирилице или латинице </p>
         <div className={styles.setup}>
           <p>Выберите, что вы хотите сделать:</p>
           <Select
@@ -59,7 +60,7 @@ function App() {
           ></Select>
         </div>
         {
-          selectedMode == 'encrypt' ? (
+          selectedMode == 'encrypt' || selectedMode == 'decrypt' ? (
             <div className={styles.setup}>
               <p>Укажите сдвиг (в количестве символов):</p>
               <input
@@ -91,7 +92,9 @@ function App() {
           text.length > 5 ?
             (
               <div className={styles.operationBtns}>
-                <button onClick={handleRunClick}>{selectedMode == 'encrypt' ? 'Зашифровать' : 'Расшифровать'}</button>
+                <button onClick={handleRunClick}>
+                  {selectedMode == 'encrypt' ? 'Зашифровать' :  selectedMode == 'decrypt' ? 'Расшифровать' : 'Взломать'}
+                </button>
                 <button onClick={clearText}>Очистить поле</button>
               </div>
             )
