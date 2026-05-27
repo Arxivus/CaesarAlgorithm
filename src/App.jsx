@@ -16,6 +16,7 @@ function App() {
   const [selectedMode, setSelectedMode] = useState('');
   const [text, setText] = useState('');
   const [shift, setShift] = useState(0);
+  const [foundShift, setFoundShift] = useState()
   const [changedText, setChangedText] = useState('')
 
   const textRef = useRef(null)
@@ -35,10 +36,20 @@ function App() {
       return
     }
 
+    if (!Number.isInteger(shift) && selectedMode != 'hack') {
+      alert('Сдвиг должен быть целым числом!')
+      return
+    }
+
     if (selectedMode != '') {
+      setFoundShift(undefined)
+
       const result = runAlgorithm(selectedMode, text, shift)
-      setChangedText(result)
-    } 
+      setChangedText(result[0])
+
+      if (result[1])
+        setFoundShift(result[1])
+    }
   }
 
   return (
@@ -66,12 +77,13 @@ function App() {
               <input
                 type="number"
                 placeholder='0'
+                step="1"
                 onChange={(e) => setShift(Number(e.target.value))}
               />
             </div>
-          ) 
-          : 
-          (<div></div>)
+          )
+            :
+            (<div></div>)
         }
         {
           selectedMode != '' ?
@@ -93,7 +105,7 @@ function App() {
             (
               <div className={styles.operationBtns}>
                 <button onClick={handleRunClick}>
-                  {selectedMode == 'encrypt' ? 'Зашифровать' :  selectedMode == 'decrypt' ? 'Расшифровать' : 'Взломать'}
+                  {selectedMode == 'encrypt' ? 'Зашифровать' : selectedMode == 'decrypt' ? 'Расшифровать' : 'Взломать'}
                 </button>
                 <button onClick={clearText}>Очистить поле</button>
               </div>
@@ -106,6 +118,7 @@ function App() {
           changedText != '' ?
             (<div>
               <p>Результат:</p>
+              {foundShift ? (<p>Сдвиг: {foundShift}</p>) : <></>}
               <textarea
                 className={styles.textInput}
                 type="text"

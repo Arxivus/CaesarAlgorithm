@@ -7,24 +7,25 @@ const alphabetsInString = {
 }
 
 function runAlgorithm(mode, text, shift = 0) {
-  let resultText = ''
+  let result = ['', undefined]
   const filteredText = text.replace(/[ёЁ!?.,@#%&*~'"<>/_-`^$(){}|+-=:;— \n0123456789]/g, match => replacements[match]).trim()
 
-  if (text.length < 100) {
+  if (text.length < 100 && mode == 'hack') {
       alert('Размер сообщения мал, могут быть неточности!')
     }
 
   if (mode == 'encrypt') {
-    resultText = leftShiftText(filteredText.toLowerCase(), -shift)
+    result[0] = leftShiftText(filteredText.toLowerCase(), -shift)
 
   } else if (mode == 'hack') {
-    resultText = hackText(filteredText.toLowerCase()) 
+    result = hackText(filteredText.toLowerCase()) 
 
   } else {
-    resultText = leftShiftText(filteredText.toLowerCase(), shift)
+    result[0] = leftShiftText(filteredText.toLowerCase(), shift)
   }
 
-  return resultText
+  console.log(result);
+  return result
 }
 
 
@@ -47,7 +48,7 @@ function hackText(text) {
     }
   }
 
-  return bestText
+  return [bestText, bestShift]
 }
 
 
@@ -56,7 +57,9 @@ function leftShiftText(text, shift) {
     const alphabet = isLatin(char) ? alphabetsInString['latin'] : alphabetsInString['cyrillic']
     const charIndex = alphabet.indexOf(char);
 
-    return alphabet[(charIndex - shift + alphabet.length) % alphabet.length];
+    const normalShift = shift % alphabet.length
+
+    return alphabet[(charIndex - normalShift + alphabet.length) % alphabet.length];
   });
 
   return shiftedArr.join('').replace(/.{5}/g, '$& ')
